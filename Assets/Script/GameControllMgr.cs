@@ -22,8 +22,6 @@ public class GameControllMgr : MonoBehaviour
     void Start()
     {
         this.mode = GameMode.AStar;
-        GraphMgr.Instance = new GraphMgr();
-        GraphMgr.Instance.scanGraph();
     }
 
     // Update is called once per frame

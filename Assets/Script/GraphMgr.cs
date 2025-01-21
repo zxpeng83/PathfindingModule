@@ -9,6 +9,12 @@ public class GraphMgr
 
     public int[][] graph;
 
+    public void init()
+    {
+        Instance = this;
+        this.scanGraph();
+    }
+
     public void scanGraph()
     {
         Transform[] objs = MouseMgr.instance.graphAnchor.transform.GetComponentsInChildren<Transform>(true);
