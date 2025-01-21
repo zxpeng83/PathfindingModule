@@ -282,7 +282,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1121125582535847827, guid: 9854bb05e98038145add8ed7c25af4b1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1121125582535847827, guid: 9854bb05e98038145add8ed7c25af4b1, type: 3}
       propertyPath: m_LocalPosition.y
@@ -290,7 +290,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1121125582535847827, guid: 9854bb05e98038145add8ed7c25af4b1, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 19.12
+      value: 0.49
       objectReference: {fileID: 0}
     - target: {fileID: 1121125582535847827, guid: 9854bb05e98038145add8ed7c25af4b1, type: 3}
       propertyPath: m_LocalRotation.w
@@ -362,7 +362,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 0
-  m_Radius: 0.4
+  m_Radius: 0.2
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -400,7 +400,7 @@ GameObject:
   - component: {fileID: 475509140}
   - component: {fileID: 475509139}
   m_Layer: 0
-  m_Name: Cube-left
+  m_Name: Wall-left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -415,7 +415,7 @@ Transform:
   m_GameObject: {fileID: 475509137}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 9.5, y: 0, z: -1}
+  m_LocalPosition: {x: 10, y: 1.5, z: -0.5}
   m_LocalScale: {x: 20, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -505,7 +505,7 @@ GameObject:
   - component: {fileID: 616236569}
   - component: {fileID: 616236568}
   m_Layer: 0
-  m_Name: Cube-right
+  m_Name: Wall-right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -520,7 +520,7 @@ Transform:
   m_GameObject: {fileID: 616236566}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 9.5, y: 0, z: 20}
+  m_LocalPosition: {x: 10, y: 1.5, z: 20.5}
   m_LocalScale: {x: 20, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -702,6 +702,7 @@ GameObject:
   - component: {fileID: 963194228}
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
+  - component: {fileID: 963194229}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -750,7 +751,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 84.933525
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -776,13 +777,26 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.605274, y: -0.0007056016, z: 0.0005417868, w: 0.7960167}
-  m_LocalPosition: {x: 377.15268, y: 30.699303, z: 201.72507}
+  m_LocalRotation: {x: 0.6992215, y: -0.00027675493, z: 0.000184154, w: 0.7149051}
+  m_LocalPosition: {x: 382.08868, y: 23.218662, z: 209.92154}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &963194229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2548f54ebd14e8b41b26689f4fb189c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  graphAnchor: {fileID: 1324265320}
 --- !u!1 &1324265320
 GameObject:
   m_ObjectHideFlags: 0
@@ -811,7 +825,7 @@ Transform:
   m_GameObject: {fileID: 1324265320}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 369.5, y: 0.5, z: 200.5}
+  m_LocalPosition: {x: 369, y: 0, z: 200}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -906,7 +920,7 @@ GameObject:
   - component: {fileID: 1488157060}
   - component: {fileID: 1488157059}
   m_Layer: 0
-  m_Name: Cube-down
+  m_Name: Wall-down
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -921,7 +935,7 @@ Transform:
   m_GameObject: {fileID: 1488157057}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 20, y: 0, z: 9.5}
+  m_LocalPosition: {x: 20.5, y: 1.5, z: 10}
   m_LocalScale: {x: 20, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1255,7 +1269,7 @@ GameObject:
   - component: {fileID: 1782877688}
   - component: {fileID: 1782877687}
   m_Layer: 0
-  m_Name: Cube-up
+  m_Name: Wall-up
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1270,7 +1284,7 @@ Transform:
   m_GameObject: {fileID: 1782877685}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -1, y: 0, z: 9.5}
+  m_LocalPosition: {x: -0.5, y: 1.5, z: 10}
   m_LocalScale: {x: 20, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
