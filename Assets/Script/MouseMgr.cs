@@ -12,8 +12,8 @@ public class MouseMgr : MonoBehaviour
 
     public GameObject graphAnchor;
     private GameObject obj = null;
-    private (int minX, int maxX) rangeX = (minX: 0, maxX: 20);
-    private (int minZ, int maxZ) rangeZ = (minZ: 0, maxZ: 20);
+    public (int minX, int maxX) rangeX = (minX: 1, maxX: 21);
+    public (int minZ, int maxZ) rangeZ = (minZ: 1, maxZ: 21);
 
     private void Awake()
     {
@@ -22,6 +22,11 @@ public class MouseMgr : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetMouseButtonDown(1))
+        {
+            GraphMgr.Instance.prin();
+        }
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hitInfo;
         bool isHitSomthing = Physics.Raycast(ray, out hitInfo, Mathf.Infinity, ~(1<<2));
@@ -35,7 +40,7 @@ public class MouseMgr : MonoBehaviour
             bool isHitBarrier = hitInfo.collider.gameObject.name.IndexOf("Barrier") != -1;
             var graphPos = this.getPosInGraph(hitInfo.point);
 
-            Debug.LogFormat("isHitBarrier:{0},  posInGraph.flag:{1},  posInGraph.pos:{2}", isHitBarrier, graphPos.flag, graphPos.pos);
+            //Debug.LogFormat("isHitBarrier:{0},  posInGraph.flag:{1},  posInGraph.pos:{2}", isHitBarrier, graphPos.flag, graphPos.pos);
 
             if(isHitBarrier || !graphPos.flag) //打到之前放置的障碍物 或 打在地图之外
             {
@@ -61,9 +66,9 @@ public class MouseMgr : MonoBehaviour
     }
     private (bool flag, Vector3 pos) getPosInGraph(Vector3 pos)
     {
-        Debug.LogFormat("before: {0}", pos);
+        //Debug.LogFormat("before: {0}", pos);
         Vector3 localPos = graphAnchor.transform.InverseTransformPoint(pos);
-        Debug.Log(localPos);
+        //Debug.Log(localPos);
         if(localPos.x <= this.rangeX.minX || localPos.x >= this.rangeX.maxX
             || localPos.z <= this.rangeZ.minZ || localPos.z >= this.rangeZ.maxZ
             || localPos.y <= -0.15 || localPos.y >= 0.15)
@@ -109,7 +114,8 @@ public class MouseMgr : MonoBehaviour
 
         obj.transform.localPosition = pos;
         obj.layer = 0;
-        obj.name = obj.name + "_" + Mathf.Floor(pos.x) + "_" + Mathf.Floor(pos.z);
+        obj.name = "BarrierActive_" + Mathf.Floor(pos.x) + "_" + Mathf.Floor(pos.z);
+        GraphMgr.Instance.setVal((int)Mathf.Floor(pos.x), (int)Mathf.Floor(pos.z), 1);
         obj = null;
     }
 
