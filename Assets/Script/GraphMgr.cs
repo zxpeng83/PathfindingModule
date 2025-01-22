@@ -1,3 +1,4 @@
+using GameConfig;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -26,6 +27,10 @@ public class GraphMgr: MonoBehaviour
     /// 需要放置目标点时跟随鼠标移动的预瞄目标点
     /// </summary>
     private GameObject fakeTarget = null;
+    /// <summary>
+    /// 地图上要放置物体时的预瞄物体
+    /// </summary>
+    private GameObject fakeObj = null;
 
     //场景中地图x z轴的最大最小值
     public (int minX, int maxX) rangeX = (minX: 1, maxX: 21);
@@ -70,6 +75,14 @@ public class GraphMgr: MonoBehaviour
             int zz = int.Parse(str[2]);
 
             this.graph[xx][zz] = 1;
+        }
+    }
+
+    public void putFakeObj(Vector3 pos, FakeObjType type)
+    {
+        if(type == FakeObjType.Barrier)
+        {
+
         }
     }
 
