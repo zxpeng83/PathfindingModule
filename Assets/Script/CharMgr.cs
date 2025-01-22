@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharController : MonoBehaviour
+public class CharMgr : MonoBehaviour
 {
+    public static CharMgr instance;
+
     public float speed = 3.0F;
     public float rotateSpeed = 3.0F;
 
@@ -15,6 +17,7 @@ public class CharController : MonoBehaviour
 
     private void Awake()
     {
+        instance = this;
         myAnimator = GetComponent<Animator>();
         myController = GetComponent<CharacterController>();
     }

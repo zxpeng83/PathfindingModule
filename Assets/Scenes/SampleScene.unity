@@ -1125,7 +1125,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2548f54ebd14e8b41b26689f4fb189c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  graphAnchor: {fileID: 1324265320}
 --- !u!1 &1021276407
 GameObject:
   m_ObjectHideFlags: 0
@@ -1705,10 +1704,10 @@ RectTransform:
   - {fileID: 1746911337}
   m_Father: {fileID: 1021276411}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -352, y: 201}
-  m_SizeDelta: {x: -753, y: -585}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 119, y: -118.5}
+  m_SizeDelta: {x: 189, y: 54}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1495465780
 MonoBehaviour:
