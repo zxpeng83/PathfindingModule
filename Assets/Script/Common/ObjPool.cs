@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ∂‘œÛ≥ÿ
+/// </summary>
 public class ObjPool
 {
     private static ObjPool ins;
