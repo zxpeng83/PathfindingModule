@@ -10,4 +10,9 @@ public class PathFindingMgr
     {
         instance = this;
     }
+
+    public void aStar()
+    {
+
+    }
 }

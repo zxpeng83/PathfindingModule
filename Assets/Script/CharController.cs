@@ -8,6 +8,8 @@ public class CharController : MonoBehaviour
     public float speed = 3.0F;
     public float rotateSpeed = 3.0F;
 
+    public string curPos = "";
+
     private CharacterController myController;
     private Animator myAnimator;
 
