@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class CharMgr : MonoBehaviour
 {
-    public static CharMgr instance;
+    public static List<CharMgr> charList = new List<CharMgr>();
 
     //public float speed = 3.0F;
     //public float rotateSpeed = 3.0F;
@@ -15,20 +15,27 @@ public class CharMgr : MonoBehaviour
 
     private CharacterController myController;
     private Animator myAnimator;
+    // 上一帧的位置数据
+    private (bool flag, Vector3 pos) preAnchorLocalPos;
+    private (bool flag, Vector3 pos) preAnchorLocalCenterPos;
+    private (bool flag, Vector3 pos) preGraphIdx;
+
+    public bool isMaster = false;
+
 
     private void Awake()
     {
-        instance = this;
+        CharMgr.charList.Add(this);
+        CharMgr.charList[0].isMaster = true;
+
         myAnimator = GetComponent<Animator>();
         myController = GetComponent<CharacterController>();
-        //this.localPos.x = gameObject.transform.localPosition.x;
-        //this.localPos.z = gameObject.transform.localPosition.z;
     }
 
     // Start is called before the first frame update
     private void Start()
     {
-        
+        this.freshPreData();
     }
 
     /// <summary>
@@ -77,6 +84,25 @@ public class CharMgr : MonoBehaviour
 
         transform.rotation = Quaternion.LookRotation(dir);
         myController.SimpleMove(dir * 4);
+
+        GraphMgr.Instance.removeChar(this.preGraphIdx.pos);
+
+        if (this.getGraphIdx().flag)
+        {
+            GraphMgr.Instance.freshChar(this.getGraphIdx().pos);
+        }
+
+        this.freshPreData();
+
+        this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
+
         Debug.LogFormat("{0} , {1} , {2}", h, v, dir);
+    }
+
+    private void freshPreData()
+    {
+        this.preAnchorLocalPos = this.getAnchorLocalPos();
+        this.preAnchorLocalCenterPos = this.getAnchorLocalCenterPos();
+        this.preGraphIdx = this.getGraphIdx();
     }
 }

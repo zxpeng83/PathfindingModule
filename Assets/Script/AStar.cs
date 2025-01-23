@@ -4,14 +4,29 @@ using UnityEngine;
 
 public class AStar
 {
-    public static AStar ins;
-    public AStar()
+    public static AStar ins = null;
+    public static AStar instance
     {
-        AStar.ins = this;
+        get
+        {
+            if(ins == null)
+            {
+                ins = new AStar();
+            }
+
+            return ins;
+        }
     }
 
     public void startNavigation()
     {
-        
+        if (CharMgr.charList.Count <= 0) return;
+
+        var charac = CharMgr.charList[0].getGraphIdx();
+        if (!charac.flag) return;
+
+        int[][] graph = GraphMgr.Instance.getGraph();
+
+
     }
 }

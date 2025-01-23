@@ -9,13 +9,17 @@ namespace GameConfig
     }
 
     /// <summary>
-    /// 放置的预瞄物体类型
+    /// 地图上放置的物体类型
     /// </summary>
     public enum GraphObjType
     {
-        Barrier,
-        Target,
-        Fake,
+        None = 0,
+
+        Target = -1,
+        Barrier = 1,
+        Wall = 2,
+        Char = 3,
+        Fake = 4,
     }
 
     /// <summary>
@@ -27,5 +31,14 @@ namespace GameConfig
         public static int maxX = 21;
         public static int minZ = 1;
         public static int maxZ = 21;
+    }
+
+    /// <summary>
+    /// 角色各移动方向
+    /// </summary>
+    public class MoveDirec
+    {
+        public static int[] dx = { -1, -1, 0, 1, 1, 1, 0, -1 };
+        public static int[] dy = { 0, 1, 1, 1, 0, -1, -1, -1 };
     }
 }

@@ -3,6 +3,42 @@ using System.Collections.Generic;
 using GameConfig;
 using UnityEngine;
 
+class AStarData
+{
+    public Vector3 targetPos;
+    public int targetCount = 0;
+    public GameObject targetGo;
+
+    public AStarData()
+    {
+        this.targetPos = Vector3.zero;
+        this.targetCount = 0;
+        this.targetGo = null;
+    }
+
+    public bool addTarget(GameObject go, Vector3 pos)
+    {
+        if(targetCount == 0)
+        {
+            targetCount++;
+            targetPos = pos;
+            targetGo = go;
+            return true;
+        }
+        return false;
+    }
+
+    public void removeTarget()
+    {
+        if(targetCount > 0)
+        {
+            targetCount--;
+            targetPos = Vector3.zero;
+            ObjPool.instance.backObj(targetGo);
+        }
+    }
+}
+
 public class GameControllMgr : MonoBehaviour
 {
     public static GameControllMgr instance;
@@ -41,13 +77,15 @@ public class GameControllMgr : MonoBehaviour
 
         if (isHitSomething) //打到物体
         {
+            ///是否打到已经放置的障碍物
             bool isHitBarrier = hitInfo.collider.gameObject.name.IndexOf("Barrier") != -1;
+            ///是否打到已经放置的目标
             bool isHitTarget = hitInfo.collider.gameObject.name.IndexOf("Target") != -1;
 
             var anchorLocalCenterPos = GraphMgr.Instance.worldPos2AnchorLocalCenterPos(hitInfo.point);
             var graphIdx = GraphMgr.Instance.worldPos2GraphIdx(hitInfo.point);
-            var charGraphIdx = CharMgr.instance.getGraphIdx();
-
+            var charGraphIdx = CharMgr.charList[0].getGraphIdx();
+            ///是否打到角色
             bool isHitChar = (graphIdx.flag && graphIdx.pos.Equals(charGraphIdx.pos));
 
             if (isHitBarrier || isHitChar || !anchorLocalCenterPos.flag) //打到之前放置的障碍物 或 打在角色所在格子里 或 打在地图之外
@@ -59,11 +97,12 @@ public class GameControllMgr : MonoBehaviour
             {
                 if (leftMouseDown) //放置障碍物
                 {
-                    GraphMgr.Instance.putRealObj(anchorLocalCenterPos.pos, GraphObjType.Barrier);
+                    GraphMgr.Instance.putTarOrBarObj(anchorLocalCenterPos.pos, GraphObjType.Barrier);
                 }
                 else if (rightMouseDown) //放置目标
                 {
-                    GraphMgr.Instance.putRealObj(anchorLocalCenterPos.pos, GraphObjType.Target);
+                    GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Target);
+                    GraphMgr.Instance.putTarOrBarObj(anchorLocalCenterPos.pos, GraphObjType.Target);
                 }
                 else //放置预瞄物体跟随
                 {

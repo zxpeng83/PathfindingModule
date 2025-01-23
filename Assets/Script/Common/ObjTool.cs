@@ -53,4 +53,22 @@ public class ObjTool
             item.gameObject.layer = lay;
         }
     }
+
+    /// <summary>
+    /// 获取所有第一层的子物体
+    /// </summary>
+    /// <param name="go"></param>
+    /// <returns></returns>
+    public GameObject[] getChildWithL1(GameObject go)
+    {
+        GameObject[] gos = new GameObject[go.transform.childCount];
+        
+        for(int i = 0; i < go.transform.childCount; i++)
+        {
+            GameObject child = go.transform.GetChild(i).gameObject;
+            gos[i] = child;
+        }
+
+        return gos;
+    }
 }
