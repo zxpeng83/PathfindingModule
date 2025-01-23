@@ -51,7 +51,7 @@ public class ObjPool
             rtnObj = Object.Instantiate(prefabs[prefabName]);
         }
 
-        rtnObj.name = prefabName;
+        ObjTool.instance.setNameWithChild(rtnObj, prefabName);
 
         rtnObj.SetActive(true);
         return rtnObj;
@@ -59,15 +59,17 @@ public class ObjPool
 
     public void backObj(GameObject obj)
     {
+        if(obj == null) return;
+
         if(obj.name.IndexOf("-") != -1)
         {
             string[] tem = obj.name.Split('-');
-            obj.name = tem[0];
+            ObjTool.instance.setNameWithChild(obj, tem[0]);
         }
         if(obj.name.IndexOf("_") != -1)
         {
             string[] tem = obj.name.Split("_");
-            obj.name = tem[0];
+            ObjTool.instance.setNameWithChild(obj, tem[0]);
         }
 
         if (!pool.ContainsKey(obj.name))
@@ -76,6 +78,7 @@ public class ObjPool
         }
         else
         {
+            obj.transform.parent = null;
             obj.SetActive(false);
             pool[obj.name].Add(obj);
         }

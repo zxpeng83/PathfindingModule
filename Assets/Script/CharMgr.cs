@@ -1,16 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CharMgr : MonoBehaviour
 {
     public static CharMgr instance;
 
-    public float speed = 3.0F;
-    public float rotateSpeed = 3.0F;
+    //public float speed = 3.0F;
+    //public float rotateSpeed = 3.0F;
 
-    public string curPos = "";
+    //private (float x, float z) localPos;
 
     private CharacterController myController;
     private Animator myAnimator;
@@ -20,12 +21,41 @@ public class CharMgr : MonoBehaviour
         instance = this;
         myAnimator = GetComponent<Animator>();
         myController = GetComponent<CharacterController>();
+        //this.localPos.x = gameObject.transform.localPosition.x;
+        //this.localPos.z = gameObject.transform.localPosition.z;
     }
 
     // Start is called before the first frame update
     private void Start()
     {
         
+    }
+
+    /// <summary>
+    /// 获取角色在地图上的本地坐标(相当于graphAhchor的本地坐标)
+    /// </summary>
+    /// <returns></returns>
+    public (bool flag, Vector3 pos) getAnchorLocalPos()
+    {
+        return GraphMgr.Instance.worldPos2AnchorLocalPos(gameObject.transform.position);
+    }
+
+    /// <summary>
+    /// 获取角色在地图上的格子坐标(格子内取格子中心坐标)
+    /// </summary>
+    /// <returns></returns>
+    public (bool flag, Vector3 pos) getAnchorLocalCenterPos()
+    {
+        return GraphMgr.Instance.worldPos2AnchorLocalCenterPos(gameObject.transform.position);
+    }
+
+    /// <summary>
+    /// 获取角色在地图格子的下标
+    /// </summary>
+    /// <returns></returns>
+    public (bool flag, Vector3 pos) getGraphIdx()
+    {
+        return GraphMgr.Instance.worldPos2GraphIdx(gameObject.transform.position);
     }
 
     // Update is called once per frame

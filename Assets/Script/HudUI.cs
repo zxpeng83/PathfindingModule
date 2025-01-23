@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,8 +10,8 @@ public class HudUI : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        this.dropDown.GetComponent<Dropdown>().onValueChanged.RemoveAllListeners();
-        this.dropDown.GetComponent<Dropdown>().onValueChanged.AddListener(this.onDropdownSelect);
+        this.dropDown.GetComponent<TMP_Dropdown>().onValueChanged.RemoveAllListeners();
+        this.dropDown.GetComponent<TMP_Dropdown>().onValueChanged.AddListener(this.onDropdownSelect);
     }
 
     // Update is called once per frame
