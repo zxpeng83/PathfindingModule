@@ -87,14 +87,15 @@ public class GraphMgr: MonoBehaviour
         //扫描动态物体
         foreach (var item in objs)
         {
+            Debug.LogError(item.name);
             string[] str = item.name.Split("-");
-            if (str.Length < 3) return;
+            if (str.Length < 3) continue;
 
             int xx = int.Parse(str[1]);
             int zz = int.Parse(str[2]);
             string type = str[0];
 
-            if (!Enum.TryParse(type, out GraphObjType eType)) return;
+            if (!Enum.TryParse(type, out GraphObjType eType)) continue;
 
             // 需要记录进地图的物体:  目标                          障碍物                  角色                            预瞄物体
             if(eType == GraphObjType.Target || eType == GraphObjType.Barrier || eType == GraphObjType.Char || eType == GraphObjType.Fake)
@@ -403,6 +404,6 @@ public class GraphMgr: MonoBehaviour
             }
             str += "\n";
         }
-        Debug.Log(str);
+        Debug.LogError(str);
     }
 }

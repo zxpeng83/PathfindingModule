@@ -23,6 +23,6 @@ public class MouseMgr : MonoBehaviour
         bool leftMouseDown = Input.GetMouseButtonDown(0);
         bool rightMouseDown = Input.GetMouseButtonDown(1);
 
-        GameControllMgr.instance.mouseInput(hitInfo, isHitSomthing, leftMouseDown, rightMouseDown); 
+        GameControllMgr.instance.mouseInput(hitInfo, isHitSomthing, leftMouseDown, rightMouseDown);
     }
 }

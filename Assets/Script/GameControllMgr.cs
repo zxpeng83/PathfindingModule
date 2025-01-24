@@ -3,47 +3,11 @@ using System.Collections.Generic;
 using GameConfig;
 using UnityEngine;
 
-class AStarData
-{
-    public Vector3 targetPos;
-    public int targetCount = 0;
-    public GameObject targetGo;
-
-    public AStarData()
-    {
-        this.targetPos = Vector3.zero;
-        this.targetCount = 0;
-        this.targetGo = null;
-    }
-
-    public bool addTarget(GameObject go, Vector3 pos)
-    {
-        if(targetCount == 0)
-        {
-            targetCount++;
-            targetPos = pos;
-            targetGo = go;
-            return true;
-        }
-        return false;
-    }
-
-    public void removeTarget()
-    {
-        if(targetCount > 0)
-        {
-            targetCount--;
-            targetPos = Vector3.zero;
-            ObjPool.instance.backObj(targetGo);
-        }
-    }
-}
-
 public class GameControllMgr : MonoBehaviour
 {
     public static GameControllMgr instance;
 
-    public GameMode mode;
+    private GameMode mode;
 
     private void Awake()
     {
@@ -54,6 +18,13 @@ public class GameControllMgr : MonoBehaviour
     void Start()
     {
         this.mode = GameMode.AStar;
+    }
+
+    public void changeMode(GameMode newMode)
+    {
+        if (mode == newMode) return;
+
+        mode = newMode;
     }
 
     public void mouseInput(RaycastHit hitInfo, bool isHitSomething, bool leftMouseDown, bool rightMouseDown)
@@ -98,11 +69,13 @@ public class GameControllMgr : MonoBehaviour
                 if (leftMouseDown) //放置障碍物
                 {
                     GraphMgr.Instance.putTarOrBarObj(anchorLocalCenterPos.pos, GraphObjType.Barrier);
+                    CharMgr.charList[0].freshPath();
                 }
                 else if (rightMouseDown) //放置目标
                 {
                     GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Target);
                     GraphMgr.Instance.putTarOrBarObj(anchorLocalCenterPos.pos, GraphObjType.Target);
+                    CharMgr.charList[0].freshPath();
                 }
                 else //放置预瞄物体跟随
                 {
