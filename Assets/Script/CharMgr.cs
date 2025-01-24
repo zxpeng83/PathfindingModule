@@ -81,6 +81,14 @@ public class CharMgr : MonoBehaviour
         this.path = AStar.instance.startNavigation();
     }
 
+    /// <summary>
+    /// ÖØÖÃ
+    /// </summary>
+    public void reset()
+    {
+        
+    }
+
     // Update is called once per frame
     void Update()
     {

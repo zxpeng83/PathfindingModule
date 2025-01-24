@@ -9,6 +9,8 @@ public class GameControllMgr : MonoBehaviour
 
     private GameMode mode;
 
+    private FiniteStateMachine fsm = new FiniteStateMachine();
+
     private void Awake()
     {
         instance = this;
