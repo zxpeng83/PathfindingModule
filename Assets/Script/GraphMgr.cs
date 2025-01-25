@@ -16,27 +16,18 @@ public class GraphMgr: MonoBehaviour
     /// 地图抽象到代码的障碍物图 1为障碍物 0为平地
     /// </summary>
     private int[][] graph;
-    private (int x, int z) target;
     /// <summary>
     /// 地图坐标0点,同时也是障碍物容器
     /// </summary>
     public GameObject graphAnchor;
-    ///// <summary>
-    ///// 需要放置障碍物时跟随鼠标移动的预瞄障碍物
-    ///// </summary>
-    //private GameObject fakeBarrier = null;
-    ///// <summary>
-    ///// 需要放置目标点时跟随鼠标移动的预瞄目标点
-    ///// </summary>
-    //private GameObject fakeTarget = null;
     /// <summary>
     /// 地图上要放置物体时的预瞄物体
     /// </summary>
     private GameObject fakeObj = null;
-
-    ////场景中地图x z轴的最大最小值
-    //public (int minX, int maxX) rangeX = (minX: 1, maxX: 21);
-    //public (int minZ, int maxZ) rangeZ = (minZ: 1, maxZ: 21);
+    /// <summary>
+    /// 角色在地图上的坐标
+    /// </summary>
+    private List<Vector2> charGraphIdx = new List<Vector2>();
 
     private void Awake()
     {
@@ -84,6 +75,17 @@ public class GraphMgr: MonoBehaviour
     public void scanGraph()
     {
         GameObject[] objs = ObjTool.instance.getChildWithL1(this.graphAnchor);
+
+        ///遍历非墙壁置0
+        for(int i = 1; i <= this.graph.Length - 2; i++)
+        {
+            for(int j = 1; j <= this.graph[i].Length - 2; j++)
+            {
+                this.graph[i][j] = (int)GraphObjType.None;
+            }
+        }
+        this.charGraphIdx.Clear();
+
         //扫描动态物体
         foreach (var item in objs)
         {
@@ -97,10 +99,14 @@ public class GraphMgr: MonoBehaviour
 
             if (!Enum.TryParse(type, out GraphObjType eType)) continue;
 
-            // 需要记录进地图的物体:  目标                          障碍物                  角色                            预瞄物体
-            if(eType == GraphObjType.Target || eType == GraphObjType.Barrier || eType == GraphObjType.Char || eType == GraphObjType.Fake)
+            // 需要记录进地图的物体:  目标                          障碍物                  角色      (预瞄物体不记录)
+            if(eType == GraphObjType.Target || eType == GraphObjType.Barrier || eType == GraphObjType.Char)
             {
                 this.graph[xx][zz] = (int)eType;
+                if(eType == GraphObjType.Char)
+                {
+                    this.charGraphIdx.Add(new Vector2(xx, zz));
+                }
             }
         }
     }
@@ -112,62 +118,19 @@ public class GraphMgr: MonoBehaviour
     /// <param name="type"></param>
     public void putFakeObj(Vector3 pos, GraphObjType type)
     {
-        {
-            //Debug.Log("放置预瞄物体");
-            //if(type == GraphObjType.Barrier)
-            //{
-            //    if (!this.fakeBarrier)
-            //    {
-            //        this.fakeBarrier = ObjPool.instance.getObj(type.ToString());
-            //    }
-            //    ObjTool.instance.setLayWithChild(this.fakeBarrier, 2);
-            //    this.fakeBarrier.transform.parent = this.graphAnchor.transform;
-            //    this.fakeBarrier.transform.localPosition = pos;
-            //}
-            //else if(type == GraphObjType.Target)
-            //{
-            //    if (!this.fakeTarget)
-            //    {
-            //        this.fakeTarget = ObjPool.instance.getObj(type.ToString());
-            //    }
-            //    ObjTool.instance.setLayWithChild(this.fakeTarget, 2);
-            //    this.fakeTarget.transform.parent = this.graphAnchor.transform;
-            //    this.fakeTarget.transform.localPosition= pos;
-
-            //}
-        }
-
         if(type == GraphObjType.Fake)
         {
             if (!this.fakeObj)
             {
-                this.fakeObj = ObjPool.instance.getObj(type.ToString());
+                this.fakeObj = ObjPool.instance.getObj(type.ToString(), (obj) =>
+                {
+                    ObjTool.instance.setNameWithChild(obj, obj.name);
+                });
             }
             ObjTool.instance.setLayWithChild(this.fakeObj, 2);
             this.fakeObj.transform.parent = this.graphAnchor.transform;
             this.fakeObj.transform.localPosition = pos;
             this.fakeObj.name = type.ToString() + "-" + Mathf.FloorToInt(pos.x) + "-" + Mathf.FloorToInt(pos.z);
-        }
-
-        {
-            //if (type != GraphObjType.Target && this.fakeTarget)
-            //{
-            //    ObjTool.instance.setLayWithChild(this.fakeTarget, 0);
-            //    ObjPool.instance.backObj(this.fakeTarget);
-            //    this.fakeTarget = null;
-            //}
-            //if (type != GraphObjType.Barrier && this.fakeBarrier)
-            //{
-            //    ObjTool.instance.setLayWithChild(this.fakeBarrier, 0);
-            //    ObjPool.instance.backObj(this.fakeBarrier);
-            //    this.fakeBarrier = null;
-            //}
-            //if(type != GraphObjType.Fake && this.fakeObj)
-            //{
-            //    ObjTool.instance.setLayWithChild(this.fakeObj, 0);
-            //    ObjPool.instance.backObj(this.fakeObj);
-            //    this.fakeObj = null;
-            //}
         }
     }
 
@@ -180,23 +143,11 @@ public class GraphMgr: MonoBehaviour
         if (this.fakeObj)
         {
             ObjTool.instance.setLayWithChild(this.fakeObj, 0);
-            ObjPool.instance.backObj(this.fakeObj);
+            ObjPool.instance.backObj(this.fakeObj, (obj) =>
+            {
+                ObjTool.instance.setNameWithChild(obj, obj.name);
+            });
             this.fakeObj = null;
-        }
-
-        {
-            //if (this.fakeBarrier)
-            //{
-            //    ObjTool.instance.setLayWithChild(this.fakeBarrier, 0);
-            //    ObjPool.instance.backObj(this.fakeBarrier);
-            //    this.fakeBarrier = null;
-            //}
-            //if (this.fakeTarget)
-            //{
-            //    ObjTool.instance.setLayWithChild(this.fakeTarget, 0);
-            //    ObjPool.instance.backObj(this.fakeTarget);
-            //    this.fakeTarget = null;
-            //}
         }
     }
 
@@ -209,7 +160,10 @@ public class GraphMgr: MonoBehaviour
     {
         if (type != GraphObjType.Target && type != GraphObjType.Barrier) return;
 
-        GameObject obj = ObjPool.instance.getObj(type.ToString());
+        GameObject obj = ObjPool.instance.getObj(type.ToString(), (obj) =>
+        {
+            ObjTool.instance.setNameWithChild(obj, obj.name);
+        });
 
         if (obj)
         {
@@ -254,40 +208,71 @@ public class GraphMgr: MonoBehaviour
 
                 int xx = int.Parse(tem[1]);
                 int zz = int.Parse(tem[2]);
-                this.graph[xx][zz] = (int)GraphObjType.None;
+                this.setVal(xx, zz, (int)GraphObjType.None);
 
-                ObjPool.instance.backObj(child);
+                ObjPool.instance.backObj(child, (obj) => { 
+                    ObjTool.instance.setNameWithChild(obj, obj.name); 
+                });
             }
         }
     }
 
     /// <summary>
-    /// 刷新角色在地图上的位置
+    /// 根据CharMgr刷新角色在二维数组上的标记
     /// </summary>
-    /// <param name="pos"></param>
-    public void freshChar(Vector3 pos)
+    public void refreshChar()
     {
-        if (this.graph[(int)pos.x][(int)pos.z] == (int)GraphObjType.None || this.graph[(int)pos.x][(int)pos.z] == (int)GraphObjType.Char)
+        List<CharMgr> chars = CharMgr.charList;
+        List<Vector2> curCharGraphIdx = new List<Vector2>();
+        chars.ForEach((val) =>
         {
-            this.graph[(int)pos.x][(int)pos.z] = (int)GraphObjType.Char;
-        }
-        else
+            var tem = val.getGraphIdx();
+            if (!tem.flag) return;
+
+            Vector2 graphIdx = new Vector2(tem.pos.x, tem.pos.z);
+            curCharGraphIdx.Add(graphIdx);
+        });
+
+        this.charGraphIdx.ForEach((val) =>
         {
-            Debug.LogError("可能穿模了");
-        }
+            this.setVal((int)val.x, (int)val.y, (int)GraphObjType.None);
+        });
+
+        curCharGraphIdx.ForEach((val) =>
+        {
+            this.setVal((int)val.x, (int)val.y, (int)GraphObjType.Char);
+        });
+
+        this.charGraphIdx = curCharGraphIdx;
     }
 
-    /// <summary>
-    /// 移除地图上角色的标记
-    /// </summary>
-    /// <param name="pos"></param>
-    public void removeChar(Vector3 pos)
-    {
-        if(this.graph[(int)pos.x][(int)pos.z] == (int)GraphObjType.Char)
-        {
-            this.graph[(int)pos.x][(int)pos.z] = (int)GraphObjType.None;
-        }
-    }
+    ///// <summary>
+    ///// 刷新角色在地图上的位置
+    ///// </summary>
+    ///// <param name="pos"></param>
+    //public void freshChar(Vector3 pos)
+    //{
+    //    if (this.graph[(int)pos.x][(int)pos.z] == (int)GraphObjType.None || this.graph[(int)pos.x][(int)pos.z] == (int)GraphObjType.Char)
+    //    {
+    //        this.graph[(int)pos.x][(int)pos.z] = (int)GraphObjType.Char;
+    //    }
+    //    else
+    //    {
+    //        Debug.LogError("可能穿模了");
+    //    }
+    //}
+
+    ///// <summary>
+    ///// 移除地图上角色的标记
+    ///// </summary>
+    ///// <param name="pos"></param>
+    //public void removeChar(Vector3 pos)
+    //{
+    //    if (this.graph[(int)pos.x][(int)pos.z] == (int)GraphObjType.Char)
+    //    {
+    //        this.graph[(int)pos.x][(int)pos.z] = (int)GraphObjType.None;
+    //    }
+    //}
 
     /// <summary>
     /// 将世界坐标转化为地图上的本地坐标(即this.graphAnchor的本地坐标)

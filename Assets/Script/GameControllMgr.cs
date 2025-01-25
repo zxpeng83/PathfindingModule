@@ -7,33 +7,40 @@ public class GameControllMgr : MonoBehaviour
 {
     public static GameControllMgr instance;
 
-    private GameMode mode;
-
     private FiniteStateMachine fsm = new FiniteStateMachine();
 
     private void Awake()
     {
         instance = this;
+        this.fsm.AddNode(new AStarNode());
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        this.mode = GameMode.AStar;
+        this.fsm.Run(nameof(AStarNode));
     }
 
-    public void changeMode(GameMode newMode)
+    public void changeMode(string newMode)
     {
-        if (mode == newMode) return;
+        if (newMode == this.fsm.CurrentNodeName) return;
 
-        mode = newMode;
+        this.fsm.Transition(newMode);
+    }
+
+    public void charUpdate(CharMgr charMgr)
+    {
+        if(this.fsm.CurrentNodeName == nameof(AStarNode))
+        {
+            charMgr.moveByAuto();
+        }
     }
 
     public void mouseInput(RaycastHit hitInfo, bool isHitSomething, bool leftMouseDown, bool rightMouseDown)
     {
-        switch (this.mode)
+        switch (this.fsm.CurrentNodeName)
         {
-            case GameMode.AStar:
+            case nameof(AStarNode):
                 this.mouseInputAStar(hitInfo,  isHitSomething, leftMouseDown, rightMouseDown);
                 break;
             default:

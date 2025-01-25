@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 /// <summary>
 /// 对象池
@@ -23,6 +26,7 @@ public class ObjPool
 
     private Dictionary<string, List<GameObject>> pool;
     private Dictionary<string, GameObject> prefabs;
+    private Vector3 hidePos = new Vector3(0, -1000, 0);
 
     public ObjPool()
     {
@@ -30,7 +34,7 @@ public class ObjPool
         this.prefabs = new Dictionary<string, GameObject>();
     }
 
-    public GameObject getObj(string prefabName)
+    public GameObject getObj(string prefabName, Action<GameObject> callback = null)
     {
         GameObject rtnObj = null;
         if (prefabs.ContainsKey(prefabName) && pool.ContainsKey(prefabName) && pool[prefabName].Count>0)
@@ -46,30 +50,39 @@ public class ObjPool
                 prefabs.Add(prefabName, loadPrefab);
                 pool.Add(prefabName, new List<GameObject>());
             }
-            if (prefabs[prefabName] == null) return null;
+            if (prefabs[prefabName] == null)
+            {
+                Debug.LogError("生成预制体出错：ObjPool.getObj()");
+                return null;
+            }
 
             rtnObj = Object.Instantiate(prefabs[prefabName]);
         }
 
-        ObjTool.instance.setNameWithChild(rtnObj, prefabName);
-
+        rtnObj.name = prefabName;
         rtnObj.SetActive(true);
+
+        if(callback != null)
+        {
+            callback(rtnObj);
+        }
+
         return rtnObj;
     }
 
-    public void backObj(GameObject obj)
+    public void backObj(GameObject obj, Action<GameObject> callback = null)
     {
         if(obj == null) return;
 
         if(obj.name.IndexOf("-") != -1)
         {
             string[] tem = obj.name.Split('-');
-            ObjTool.instance.setNameWithChild(obj, tem[0]);
+            obj.name = tem[0];
         }
         if(obj.name.IndexOf("_") != -1)
         {
             string[] tem = obj.name.Split("_");
-            ObjTool.instance.setNameWithChild(obj, tem[0]);
+            obj.name = tem[0];
         }
 
         if (!pool.ContainsKey(obj.name))
@@ -81,6 +94,13 @@ public class ObjPool
             obj.transform.parent = null;
             obj.SetActive(false);
             pool[obj.name].Add(obj);
+
+            obj.transform.position = this.hidePos;
+
+            if( callback != null )
+            {
+                callback(obj);
+            }
         }
     }
 }

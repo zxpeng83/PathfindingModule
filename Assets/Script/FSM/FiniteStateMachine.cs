@@ -13,7 +13,10 @@ public class FiniteStateMachine
     /// </summary>
     public string CurrentNodeName
     {
-        get { return _curNode != null ? _curNode.Name : string.Empty; }
+        get 
+        { 
+            return _curNode != null ? _curNode.Name : string.Empty;
+        }
     }
 
     /// <summary>

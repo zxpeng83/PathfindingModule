@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class CharMgr : MonoBehaviour
@@ -16,14 +13,14 @@ public class CharMgr : MonoBehaviour
 
     private CharacterController myController;
     private Animator myAnimator;
-    // 上一帧的位置数据
-    private (bool flag, Vector3 pos) preAnchorLocalPos;
-    private (bool flag, Vector3 pos) preAnchorLocalCenterPos;
-    private (bool flag, Vector3 pos) preGraphIdx;
+    //// 上一帧的位置数据
+    //private (bool flag, Vector3 pos) preAnchorLocalPos;
+    //private (bool flag, Vector3 pos) preAnchorLocalCenterPos;
+    //private (bool flag, Vector3 pos) preGraphIdx;
     /// <summary>
     /// 自动寻路的路径
     /// </summary>
-    private List<Vector2Int> path;
+    private List<Vector2Int> path = new List<Vector2Int>();
 
     /// <summary>
     /// 是否是主控角色(只有一个主控角色能被操控)
@@ -43,7 +40,8 @@ public class CharMgr : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        this.freshPreData();
+        //this.freshPreData();
+        //this.myReset();
     }
 
     /// <summary>
@@ -82,30 +80,56 @@ public class CharMgr : MonoBehaviour
     }
 
     /// <summary>
-    /// 重置
+    /// 重置角色，重置之前记得先清楚地图上的障碍物和目标
     /// </summary>
-    public void reset()
+    /// <param name="graphIdx">地图格子的下标</param>
+    public void myReset(Vector2 graphIdx = default(Vector2))
     {
-        
+        if(graphIdx != default(Vector2))
+        {
+            transform.localPosition = new Vector3(graphIdx.x+0.5f, 0, graphIdx.y + 0.5f);
+        }
+
+        this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
+
+        GraphMgr.Instance.refreshChar();
+
+        this.freshPath();
     }
 
+    ///// <summary>
+    ///// 重置(只有主控端才可以重置，非主控端只能销毁；且重置前得先清楚地图上的物体）
+    ///// </summary>
+    //public void reset()
+    //{
+    //    if (!this.isMaster) return;
+
+    //    this.path.Clear();
+
+    //    GraphMgr.Instance.removeChar(this.preGraphIdx.pos);
+    //    GraphMgr.Instance.removeChar(this.getGraphIdx().pos);
+
+    //    transform.localPosition = new Vector3(1, 0, 1);
+
+    //    this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
+
+    //    GraphMgr.Instance.freshChar(this.getGraphIdx().pos);
+
+    //    this.freshPreData();
+    //}
+
     // Update is called once per frame
+
+
     void Update()
     {
-        if(this.isMaster && (this.path == null || this.path.Count <= 0))
-        {
-            this.moveByKeyboard();
-        }
-        else
-        {
-            this.moveByAuto();
-        }
+        GameControllMgr.instance.charUpdate(this);
     }
 
     /// <summary>
     /// 通过键盘输入手动操控玩家移动
     /// </summary>
-    private void moveByKeyboard()
+    public void moveByKeyboard()
     {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
@@ -124,14 +148,15 @@ public class CharMgr : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(dir);
         myController.SimpleMove(dir * 4);
 
-        GraphMgr.Instance.removeChar(this.preGraphIdx.pos);
+        //GraphMgr.Instance.removeChar(this.preGraphIdx.pos);
 
-        if (this.getGraphIdx().flag)
-        {
-            GraphMgr.Instance.freshChar(this.getGraphIdx().pos);
-        }
+        //if (this.getGraphIdx().flag)
+        //{
+        //    GraphMgr.Instance.freshChar(this.getGraphIdx().pos);
+        //}
 
-        this.freshPreData();
+        //this.freshPreData();
+        GraphMgr.Instance.refreshChar();
 
         this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
 
@@ -141,9 +166,9 @@ public class CharMgr : MonoBehaviour
     /// <summary>
     /// 自动寻路
     /// </summary>
-    private void moveByAuto()
+    public void moveByAuto()
     {
-        while(this.path.Count > 0)
+        while(this.path != null && this.path.Count > 0) 
         {
             Vector2 nexPointV2 = this.path.Last();
             nexPointV2.x += 0.5f;
@@ -161,35 +186,37 @@ public class CharMgr : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(dirV3);
             myController.SimpleMove(dirV3 * 2);
 
-            GraphMgr.Instance.removeChar(this.preGraphIdx.pos);
+            //GraphMgr.Instance.removeChar(this.preGraphIdx.pos);
 
-            if (this.getGraphIdx().flag)
-            {
-                GraphMgr.Instance.freshChar(this.getGraphIdx().pos);
-            }
+            //if (this.getGraphIdx().flag)
+            //{
+            //    GraphMgr.Instance.freshChar(this.getGraphIdx().pos);
+            //}
 
-            this.freshPreData();
+            //this.freshPreData();
+            GraphMgr.Instance.refreshChar();
 
             this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
 
             break;
         }
 
-        if(this.path.Count <= 0)
+        if(this.path == null || this.path.Count <= 0)
         {
             this.rotation2Target();
+            myAnimator.SetBool("isRun", false);
         }
     }
 
-    /// <summary>
-    /// 刷新上一帧的数据
-    /// </summary>
-    private void freshPreData()
-    {
-        this.preAnchorLocalPos = this.getAnchorLocalPos();
-        this.preAnchorLocalCenterPos = this.getAnchorLocalCenterPos();
-        this.preGraphIdx = this.getGraphIdx();
-    }
+    ///// <summary>
+    ///// 刷新上一帧的数据
+    ///// </summary>
+    //private void freshPreData()
+    //{
+    //    this.preAnchorLocalPos = this.getAnchorLocalPos();
+    //    this.preAnchorLocalCenterPos = this.getAnchorLocalCenterPos();
+    //    this.preGraphIdx = this.getGraphIdx();
+    //}
 
     /// <summary>
     /// 使角色转向目标
