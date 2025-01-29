@@ -14,6 +14,7 @@ public class GameControllMgr : MonoBehaviour
         instance = this;
         this.fsm.AddNode(new AStarNode());
         this.fsm.AddNode(new FlowFieldNode());
+        this.fsm.AddNode(new RayCastNode());
     }
 
     // Start is called before the first frame update
