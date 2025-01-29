@@ -14,7 +14,11 @@ public class FlowFieldNode : IFsmNode
         GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Barrier);
         for(int i= CharMgr.charList.Count-1; i >= 0; i--)
         {
-            if (i == 0) break;
+            if (i == 0)
+            {
+                CharMgr.charList[i].reset2FlowField(new Vector2(1, 1));
+                break;
+            }
 
             var _mgr = CharMgr.charList[i];
             var go = _mgr.gameObject;
@@ -34,7 +38,11 @@ public class FlowFieldNode : IFsmNode
         GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Barrier);
         for (int i = CharMgr.charList.Count - 1; i >= 0; i--)
         {
-            if (i == 0) break;
+            if (i == 0)
+            {
+                CharMgr.charList[i].reset2FlowField(new Vector2(1, 1));
+                break;
+            }
 
             var _mgr = CharMgr.charList[i];
             var go = _mgr.gameObject;
