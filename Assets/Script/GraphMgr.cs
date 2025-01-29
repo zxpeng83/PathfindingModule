@@ -1,8 +1,6 @@
 using GameConfig;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 /// <summary>
@@ -28,6 +26,11 @@ public class GraphMgr: MonoBehaviour
     /// 角色在地图上的坐标
     /// </summary>
     private List<Vector2> charGraphIdx = new List<Vector2>();
+
+    /// <summary>
+    /// 当前目标点
+    /// </summary>
+    private Vector2Int curTarget = Vector2Int.zero;
 
     private void Awake()
     {
@@ -107,8 +110,43 @@ public class GraphMgr: MonoBehaviour
                 {
                     this.charGraphIdx.Add(new Vector2(xx, zz));
                 }
+
+                if(eType == GraphObjType.Target)
+                {
+                    this.curTarget = new Vector2Int(xx, zz);
+                }
             }
         }
+    }
+
+    /// <summary>
+    /// 获取当前目标节点
+    /// </summary>
+    /// <returns></returns>
+    public T? getCurTarget<T>() where T : struct
+    {
+        if(this.curTarget == Vector2Int.zero) return null;
+
+        if (typeof(T) == typeof(Vector2))
+        {
+            return (T)(object)this.curTarget;
+        }
+        else if (typeof(T) == typeof(Vector3))
+        {
+            Vector3 rtn = new Vector3(this.curTarget.x, 0, this.curTarget.y);
+            return (T)(object)rtn;
+        }
+        else if (typeof(T) == typeof(Vector2Int))
+        {
+            return (T)(object)this.curTarget;
+        }
+        else if (typeof(T) == typeof(Vector3Int))
+        {
+            Vector3Int rtn = new Vector3Int(this.curTarget.x, 0, this.curTarget.y);
+            return (T)(object)rtn;
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -174,6 +212,11 @@ public class GraphMgr: MonoBehaviour
             ObjTool.instance.setNameWithChild(obj, Newname);
 
             this.setVal(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.z), (int)type);
+
+            if(type == GraphObjType.Target)
+            {
+                this.curTarget = new Vector2Int(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.z));
+            }
         }
         else
         {
@@ -215,6 +258,11 @@ public class GraphMgr: MonoBehaviour
                 });
             }
         }
+
+        if(type == GraphObjType.Target)
+        {
+            this.curTarget = Vector2Int.zero;
+        }
     }
 
     /// <summary>
@@ -235,44 +283,16 @@ public class GraphMgr: MonoBehaviour
 
         this.charGraphIdx.ForEach((val) =>
         {
-            this.setVal((int)val.x, (int)val.y, (int)GraphObjType.None);
+            this.setVal(Mathf.RoundToInt(val.x), Mathf.RoundToInt(val.y), (int)GraphObjType.None);
         });
 
         curCharGraphIdx.ForEach((val) =>
         {
-            this.setVal((int)val.x, (int)val.y, (int)GraphObjType.Char);
+            this.setVal(Mathf.RoundToInt(val.x), Mathf.RoundToInt(val.y), (int)GraphObjType.Char);
         });
 
         this.charGraphIdx = curCharGraphIdx;
     }
-
-    ///// <summary>
-    ///// 刷新角色在地图上的位置
-    ///// </summary>
-    ///// <param name="pos"></param>
-    //public void freshChar(Vector3 pos)
-    //{
-    //    if (this.graph[(int)pos.x][(int)pos.z] == (int)GraphObjType.None || this.graph[(int)pos.x][(int)pos.z] == (int)GraphObjType.Char)
-    //    {
-    //        this.graph[(int)pos.x][(int)pos.z] = (int)GraphObjType.Char;
-    //    }
-    //    else
-    //    {
-    //        Debug.LogError("可能穿模了");
-    //    }
-    //}
-
-    ///// <summary>
-    ///// 移除地图上角色的标记
-    ///// </summary>
-    ///// <param name="pos"></param>
-    //public void removeChar(Vector3 pos)
-    //{
-    //    if (this.graph[(int)pos.x][(int)pos.z] == (int)GraphObjType.Char)
-    //    {
-    //        this.graph[(int)pos.x][(int)pos.z] = (int)GraphObjType.None;
-    //    }
-    //}
 
     /// <summary>
     /// 将世界坐标转化为地图上的本地坐标(即this.graphAnchor的本地坐标)

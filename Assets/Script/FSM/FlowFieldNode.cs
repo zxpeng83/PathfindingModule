@@ -12,12 +12,38 @@ public class FlowFieldNode : IFsmNode
     {
         GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Target);
         GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Barrier);
-        //CharMgr.char
-        //throw new System.NotImplementedException();
+        for(int i= CharMgr.charList.Count-1; i >= 0; i--)
+        {
+            if (i == 0) break;
+
+            var _mgr = CharMgr.charList[i];
+            var go = _mgr.gameObject;
+
+            CharMgr.charList.RemoveAt(i);
+
+            _mgr.reset2FlowField();
+            ObjPool.instance.backObj(go);
+        }
+
+        FlowField.instance.startNavigation();
     }
 
     public void OnExit()
     {
+        GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Target);
+        GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Barrier);
+        for (int i = CharMgr.charList.Count - 1; i >= 0; i--)
+        {
+            if (i == 0) break;
+
+            var _mgr = CharMgr.charList[i];
+            var go = _mgr.gameObject;
+
+            CharMgr.charList.RemoveAt(i);
+
+            _mgr.reset2FlowField();
+            ObjPool.instance.backObj(go);
+        }
         //throw new System.NotImplementedException();
     }
 }

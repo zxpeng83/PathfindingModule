@@ -57,6 +57,7 @@ public class ObjPool
             }
 
             rtnObj = Object.Instantiate(prefabs[prefabName]);
+            rtnObj.transform.position = this.hidePos;
         }
 
         rtnObj.name = prefabName;

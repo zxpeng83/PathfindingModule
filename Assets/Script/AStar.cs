@@ -22,8 +22,6 @@ public class AStar
         }
     }
 
-    private Vector2Int curTarget = Vector2Int.zero;
-
     public List<Vector2Int> startNavigation()
     {
         if (CharMgr.charList.Count <= 0) return null;
@@ -63,13 +61,10 @@ public class AStar
 
         if(start == Vector2Int.zero ||  target == Vector2Int.zero)
         {
-            GraphMgr.Instance.prin();
+            //GraphMgr.Instance.prin();
             Debug.LogError("AStar寻路失败,地图中找不到起点或终点");
-            this.curTarget = target;
             return null;
         }
-
-        this.curTarget = target;
 
         ///加入起点
         List<Vector2Int> l = new List<Vector2Int>();
@@ -172,31 +167,5 @@ public class AStar
         return ans;
     }
 
-    /// <summary>
-    /// 获取当前目标节点
-    /// </summary>
-    /// <returns></returns>
-    public T? getCurTarget<T>() where T : struct
-    {
-        if(typeof(T) == typeof(Vector2))
-        {
-            return (T)(object)this.curTarget;
-        }
-        else if(typeof(T) == typeof(Vector3))
-        {
-            Vector3 rtn = new Vector3(this.curTarget.x, 0, this.curTarget.y);
-            return (T)(object)rtn;
-        }
-        else if(typeof(T) == typeof(Vector2Int))
-        {
-            return (T)(object)this.curTarget;
-        }
-        else if(typeof(T) == typeof(Vector3Int))
-        {
-            Vector3Int rtn = new Vector3Int(this.curTarget.x, 0, this.curTarget.y);
-            return (T)(object)rtn;
-        }
-
-        return null;
-    }
+    
 }

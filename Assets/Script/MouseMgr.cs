@@ -22,7 +22,8 @@ public class MouseMgr : MonoBehaviour
         bool isHitSomthing = Physics.Raycast(ray, out hitInfo, Mathf.Infinity, ~(1<<2));
         bool leftMouseDown = Input.GetMouseButtonDown(0);
         bool rightMouseDown = Input.GetMouseButtonDown(1);
+        bool middleScrollDown = Input.GetMouseButtonDown(2);
 
-        GameControllMgr.instance.mouseInput(hitInfo, isHitSomthing, leftMouseDown, rightMouseDown);
+        GameControllMgr.instance.mouseInput(hitInfo, isHitSomthing, leftMouseDown, rightMouseDown, middleScrollDown);
     }
 }

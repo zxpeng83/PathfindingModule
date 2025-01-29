@@ -1,24 +1,18 @@
+using GameConfig;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CharMgr : MonoBehaviour
 {
     public static List<CharMgr> charList = new List<CharMgr>();
 
-    //public float speed = 3.0F;
-    //public float rotateSpeed = 3.0F;
-
-    //private (float x, float z) localPos;
-
     private CharacterController myController;
     private Animator myAnimator;
-    //// 上一帧的位置数据
-    //private (bool flag, Vector3 pos) preAnchorLocalPos;
-    //private (bool flag, Vector3 pos) preAnchorLocalCenterPos;
-    //private (bool flag, Vector3 pos) preGraphIdx;
     /// <summary>
-    /// 自动寻路的路径
+    /// AStar自动寻路的路径
     /// </summary>
     private List<Vector2Int> path = new List<Vector2Int>();
 
@@ -27,11 +21,18 @@ public class CharMgr : MonoBehaviour
     /// </summary>
     public bool isMaster = false;
 
+    /// <summary>
+    /// FlowField寻路过程中的下一个点
+    /// </summary>
+    private Vector3 nexFlowFieldIdxV3 = Vector3.zero;
 
     private void Awake()
     {
-        CharMgr.charList.Add(this);
-        CharMgr.charList[0].isMaster = true;
+        if(CharMgr.charList == null || CharMgr.charList.Count == 0)
+        {
+            CharMgr.charList.Add(this);
+            CharMgr.charList[0].isMaster = true;
+        }
 
         myAnimator = GetComponent<Animator>();
         myController = GetComponent<CharacterController>();
@@ -42,6 +43,11 @@ public class CharMgr : MonoBehaviour
     {
         //this.freshPreData();
         //this.myReset();
+    }
+
+    public Vector3 getnexFlowFieldIdxV3()
+    {
+        return this.nexFlowFieldIdxV3;
     }
 
     /// <summary>
@@ -80,10 +86,10 @@ public class CharMgr : MonoBehaviour
     }
 
     /// <summary>
-    /// 重置角色，重置之前记得先清楚地图上的障碍物和目标
+    /// 针对AStar的角色重置，重置之前记得先清楚地图上的障碍物和目标
     /// </summary>
     /// <param name="graphIdx">地图格子的下标</param>
-    public void myReset(Vector2 graphIdx = default(Vector2))
+    public void reset2AStar(Vector2 graphIdx = default(Vector2))
     {
         if(graphIdx != default(Vector2))
         {
@@ -97,29 +103,29 @@ public class CharMgr : MonoBehaviour
         this.freshPath();
     }
 
-    ///// <summary>
-    ///// 重置(只有主控端才可以重置，非主控端只能销毁；且重置前得先清楚地图上的物体）
-    ///// </summary>
-    //public void reset()
-    //{
-    //    if (!this.isMaster) return;
+    /// <summary>
+    /// 针对FlowField的重置
+    /// </summary>
+    public void reset2FlowField(Vector2 graphIdx = default(Vector2))
+    {
+        if (graphIdx != default(Vector2))
+        {
+            transform.localPosition = new Vector3(graphIdx.x + 0.5f, 0, graphIdx.y + 0.5f);
+            Debug.LogError("reset2FlowField  " + transform.localPosition);
+        }
 
-    //    this.path.Clear();
+        this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
+        Debug.LogError("reset2FlowField  " + transform.localPosition);
 
-    //    GraphMgr.Instance.removeChar(this.preGraphIdx.pos);
-    //    GraphMgr.Instance.removeChar(this.getGraphIdx().pos);
+        GraphMgr.Instance.refreshChar();
 
-    //    transform.localPosition = new Vector3(1, 0, 1);
+        if (this.path != null)
+        {
+            this.path.Clear();
+        }
 
-    //    this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
-
-    //    GraphMgr.Instance.freshChar(this.getGraphIdx().pos);
-
-    //    this.freshPreData();
-    //}
-
-    // Update is called once per frame
-
+        this.nexFlowFieldIdxV3 = Vector3.zero;
+    }
 
     void Update()
     {
@@ -148,14 +154,6 @@ public class CharMgr : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(dir);
         myController.SimpleMove(dir * 4);
 
-        //GraphMgr.Instance.removeChar(this.preGraphIdx.pos);
-
-        //if (this.getGraphIdx().flag)
-        //{
-        //    GraphMgr.Instance.freshChar(this.getGraphIdx().pos);
-        //}
-
-        //this.freshPreData();
         GraphMgr.Instance.refreshChar();
 
         this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
@@ -164,9 +162,9 @@ public class CharMgr : MonoBehaviour
     }
 
     /// <summary>
-    /// 自动寻路
+    /// A*自动寻路
     /// </summary>
-    public void moveByAuto()
+    public void moveByAStar()
     {
         while(this.path != null && this.path.Count > 0) 
         {
@@ -186,13 +184,6 @@ public class CharMgr : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(dirV3);
             myController.SimpleMove(dirV3 * 2);
 
-            //GraphMgr.Instance.removeChar(this.preGraphIdx.pos);
-
-            //if (this.getGraphIdx().flag)
-            //{
-            //    GraphMgr.Instance.freshChar(this.getGraphIdx().pos);
-            //}
-
             //this.freshPreData();
             GraphMgr.Instance.refreshChar();
 
@@ -208,22 +199,101 @@ public class CharMgr : MonoBehaviour
         }
     }
 
-    ///// <summary>
-    ///// 刷新上一帧的数据
-    ///// </summary>
-    //private void freshPreData()
-    //{
-    //    this.preAnchorLocalPos = this.getAnchorLocalPos();
-    //    this.preAnchorLocalCenterPos = this.getAnchorLocalCenterPos();
-    //    this.preGraphIdx = this.getGraphIdx();
-    //}
+    /// <summary>
+    /// FlowField自动寻路
+    /// </summary>
+    public void moveByFlowField()
+    {
+        if (!this.getGraphIdx().flag)
+        {
+            //Debug.LogError("flag为false，return");
+            myAnimator.SetBool("isRun", false);
+            return;
+        }
+
+        int[][] flowFieldGraph = FlowField.instance.getGraph();
+        int[][] graph = GraphMgr.Instance.getGraph();
+
+        if(flowFieldGraph == null || graph == null)
+        {
+            //Debug.LogError("地图为空，return");
+            myAnimator.SetBool("isRun", false);
+            return;
+        }
+
+        Vector3 nexFlowFieldLocalPos = new Vector3(this.nexFlowFieldIdxV3.x + 0.5f, 0, this.nexFlowFieldIdxV3.z + 0.5f);
+        ///已经到达this.nexFlowFieldIdxV3或还没初始化，则更新最新的this.nexFlowFieldIdxV3
+        if(this.nexFlowFieldIdxV3 == Vector3.zero || MathTool.getEuclideanDisV3(this.getAnchorLocalPos().pos, nexFlowFieldLocalPos) < 0.01)
+        {
+            Vector3 curIdx = this.getGraphIdx().pos;
+            int flowFieldVal = flowFieldGraph[Mathf.RoundToInt(curIdx.x)][Mathf.RoundToInt(curIdx.z)];
+            ///寻路正常结束，到达目标外面一层
+            if (flowFieldVal < 0)
+            {
+                //Debug.LogError("flowfield地图当前位置非法，return");
+                myAnimator.SetBool("isRun", false);
+                this.rotation2Target();
+                return;
+            }
+            int nexIdxX = Mathf.RoundToInt(curIdx.x) + MoveDirec.dx[flowFieldVal];
+            int nexIdxZ = Mathf.RoundToInt(curIdx.z) + MoveDirec.dy[flowFieldVal];
+
+            Vector3 nexIdxV3 = new Vector3(nexIdxX, 0, nexIdxZ);
+            if (!this.checkNexFlowFieldIdx(nexIdxV3))
+            {
+                //Debug.LogError("下一个位置为其他角色的nexFlowFieldIdx点，return");
+                myAnimator.SetBool("isRun", false);
+                return;
+            }
+            if (graph[nexIdxX][nexIdxZ] == (int)GraphObjType.Char)
+            {
+                //Debug.LogError("下一个位置有其他角色,return");
+                myAnimator.SetBool("isRun", false);
+                return;
+            }
+
+            this.nexFlowFieldIdxV3 = nexIdxV3;
+        }
+
+        nexFlowFieldLocalPos = new Vector3(this.nexFlowFieldIdxV3.x + 0.5f, 0, this.nexFlowFieldIdxV3.z + 0.5f);
+
+        Vector3 nexDir = (nexFlowFieldLocalPos - this.getAnchorLocalPos().pos).normalized;
+        myAnimator.SetBool("isRun", true);
+        transform.rotation = Quaternion.LookRotation(nexDir);
+        //myController.SimpleMove(nexDir * 2);
+        transform.Translate(Vector3.forward * 2 * Time.deltaTime, Space.Self);
+
+        this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
+
+        GraphMgr.Instance.refreshChar();
+
+    }
+
+    /// <summary>
+    /// 判断下一个FlowField寻路点是否已经是其他角色的下一个寻路点
+    /// </summary>
+    /// <param name="idxV3"></param>
+    /// <returns></returns>
+    private bool checkNexFlowFieldIdx(Vector3 idxV3)
+    {
+        bool flag = true;
+        CharMgr.charList.ForEach((_charMgr) =>
+        {
+            if (MathTool.getEuclideanDisV3(_charMgr.getnexFlowFieldIdxV3(), idxV3) < 0.01)
+            {
+                flag = false;
+            }
+        });
+
+        return flag;
+    }
 
     /// <summary>
     /// 使角色转向目标
     /// </summary>
     private void rotation2Target()
     {
-        Vector3? target = AStar.instance.getCurTarget<Vector3>();
+        Vector3? target = GraphMgr.Instance.getCurTarget<Vector3>();
         if (target == null) return;
 
         Vector3 dir = (Vector3)target - this.getAnchorLocalPos().pos;

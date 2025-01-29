@@ -13,6 +13,7 @@ public class GameControllMgr : MonoBehaviour
     {
         instance = this;
         this.fsm.AddNode(new AStarNode());
+        this.fsm.AddNode(new FlowFieldNode());
     }
 
     // Start is called before the first frame update
@@ -32,19 +33,96 @@ public class GameControllMgr : MonoBehaviour
     {
         if(this.fsm.CurrentNodeName == nameof(AStarNode))
         {
-            charMgr.moveByAuto();
+            charMgr.moveByAStar();
+        }
+        else if(this.fsm.CurrentNodeName == nameof(FlowFieldNode))
+        {
+            charMgr.moveByFlowField();
         }
     }
 
-    public void mouseInput(RaycastHit hitInfo, bool isHitSomething, bool leftMouseDown, bool rightMouseDown)
+    public void mouseInput(RaycastHit hitInfo, bool isHitSomething, bool leftMouseDown, bool rightMouseDown, bool middleScrollDown)
     {
         switch (this.fsm.CurrentNodeName)
         {
             case nameof(AStarNode):
                 this.mouseInputAStar(hitInfo,  isHitSomething, leftMouseDown, rightMouseDown);
                 break;
+            case nameof(FlowFieldNode):
+                this.mouseInputFlowField(hitInfo, isHitSomething, leftMouseDown, rightMouseDown, middleScrollDown);
+                break;
             default:
                 break;
+        }
+    }
+
+    private void mouseInputFlowField(RaycastHit hitInfo, bool isHitSomething, bool leftMouseDown, bool rightMouseDown, bool middleScrollDown)
+    {
+        if (isHitSomething)
+        {
+            Debug.DrawLine(Camera.main.transform.position, hitInfo.point);
+        }
+
+        if (isHitSomething) //打到物体
+        {
+            ///是否打到已经放置的障碍物
+            bool isHitBarrier = hitInfo.collider.gameObject.name.IndexOf("Barrier") != -1;
+            ///是否打到已经放置的目标
+            bool isHitTarget = hitInfo.collider.gameObject.name.IndexOf("Target") != -1;
+
+            var anchorLocalCenterPos = GraphMgr.Instance.worldPos2AnchorLocalCenterPos(hitInfo.point);
+            var graphIdx = GraphMgr.Instance.worldPos2GraphIdx(hitInfo.point);
+
+            bool isHitChar = false;
+            CharMgr.charList.ForEach((_charMgr) =>
+            {
+                if(graphIdx.flag && MathTool.getEuclideanDisV3(graphIdx.pos, _charMgr.getGraphIdx().pos) < 0.01)
+                {
+                    isHitChar = true;
+                }
+            });
+
+            if (isHitBarrier || isHitChar || !anchorLocalCenterPos.flag) //打到之前放置的障碍物 或 打在角色所在格子里 或 打在地图之外
+            {
+                //Debug.LogErrorFormat("打击无效 isHitbarrier：{0}  ishitchar：{1}  flag：{2}", isHitBarrier, isHitChar, anchorLocalCenterPos.flag);
+                GraphMgr.Instance.clearAllFakeObj();
+                return;
+            }
+            else  //打的位置合法,可跟随或放置
+            {
+                //Debug.LogErrorFormat("打击有效  left:{0}  right:{1}  middle:{2}", leftMouseDown, rightMouseDown, middleScrollDown);
+                if (leftMouseDown) //放置障碍物
+                {
+                    GraphMgr.Instance.putTarOrBarObj(anchorLocalCenterPos.pos, GraphObjType.Barrier);
+                    FlowField.instance.startNavigation();
+                }
+                else if (rightMouseDown) //放置目标
+                {
+                    GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Target);
+                    GraphMgr.Instance.putTarOrBarObj(anchorLocalCenterPos.pos, GraphObjType.Target);
+                    FlowField.instance.startNavigation();
+                    FlowField.instance.prin();
+                }
+                else if (middleScrollDown) //放置角色
+                {
+                    Debug.LogError(graphIdx.pos);
+                    GameObject charac = ObjPool.instance.getObj(GraphObjType.Char.ToString(), (go) =>
+                    {
+                        go.transform.parent = GraphMgr.Instance.graphAnchor.transform;
+                        var _mgr = go.GetComponent<CharMgr>();
+                        CharMgr.charList.Add(_mgr);
+                        _mgr.reset2FlowField(new Vector2(graphIdx.pos.x, graphIdx.pos.z));
+                    });
+                }
+                else //放置预瞄物体跟随
+                {
+                    GraphMgr.Instance.putFakeObj(anchorLocalCenterPos.pos, GraphObjType.Fake);
+                }
+            }
+        }
+        else //没打到物体
+        {
+            GraphMgr.Instance.clearAllFakeObj();
         }
     }
 
@@ -66,7 +144,7 @@ public class GameControllMgr : MonoBehaviour
             var graphIdx = GraphMgr.Instance.worldPos2GraphIdx(hitInfo.point);
             var charGraphIdx = CharMgr.charList[0].getGraphIdx();
             ///是否打到角色
-            bool isHitChar = (graphIdx.flag && graphIdx.pos.Equals(charGraphIdx.pos));
+            bool isHitChar = (graphIdx.flag && MathTool.getEuclideanDisV3(graphIdx.pos, charGraphIdx.pos) < 0.01);
 
             if (isHitBarrier || isHitChar || !anchorLocalCenterPos.flag) //打到之前放置的障碍物 或 打在角色所在格子里 或 打在地图之外
             {

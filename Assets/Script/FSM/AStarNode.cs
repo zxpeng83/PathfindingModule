@@ -12,7 +12,7 @@ public class AStarNode : IFsmNode
     {
         GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Target);
         GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Barrier);
-        CharMgr.charList[0].myReset(new Vector3(1, 1));
+        CharMgr.charList[0].reset2AStar(new Vector3(1, 1));
         //throw new System.NotImplementedException();
     }
 
@@ -20,7 +20,7 @@ public class AStarNode : IFsmNode
     {
         GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Target);
         GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Barrier);
-        CharMgr.charList[0].myReset(new Vector3(1, 1));
+        CharMgr.charList[0].reset2AStar(new Vector3(1, 1));
         //throw new System.NotImplementedException();
     }
 }
