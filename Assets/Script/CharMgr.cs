@@ -80,7 +80,7 @@ public class CharMgr : MonoBehaviour
     /// <summary>
     /// 刷新寻路路径
     /// </summary>
-    public void freshPath()
+    public void freshAStarPath()
     {
         this.path = AStar.instance.startNavigation();
     }
@@ -100,7 +100,7 @@ public class CharMgr : MonoBehaviour
 
         GraphMgr.Instance.refreshChar();
 
-        this.freshPath();
+        this.freshAStarPath();
     }
 
     /// <summary>
@@ -111,11 +111,9 @@ public class CharMgr : MonoBehaviour
         if (graphIdx != default(Vector2))
         {
             transform.localPosition = new Vector3(graphIdx.x + 0.5f, 0, graphIdx.y + 0.5f);
-            Debug.LogError("reset2FlowField  " + transform.localPosition);
         }
 
         this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
-        Debug.LogError("reset2FlowField  " + transform.localPosition);
 
         GraphMgr.Instance.refreshChar();
 
@@ -127,13 +125,29 @@ public class CharMgr : MonoBehaviour
         this.nexFlowFieldIdxV3 = Vector3.zero;
     }
 
+    /// <summary>
+    /// 针对RayCast的重置
+    /// </summary>
+    /// <param name="graphIdx"></param>
+    public void reset2RayCast(Vector2 graphIdx = default(Vector2))
+    {
+        if (graphIdx != default(Vector2))
+        {
+            transform.localPosition = new Vector3(graphIdx.x + 0.5f, 0, graphIdx.y + 0.5f);
+        }
+
+        this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
+
+        GraphMgr.Instance.refreshChar();
+    }
+
     void Update()
     {
         GameControllMgr.instance.charUpdate(this);
     }
 
     /// <summary>
-    /// 通过键盘输入手动操控玩家移动
+    /// 通过键盘输入手动操控玩家移动(RayCast模式)
     /// </summary>
     public void moveByKeyboard()
     {
@@ -152,13 +166,13 @@ public class CharMgr : MonoBehaviour
         }
 
         transform.rotation = Quaternion.LookRotation(dir);
-        myController.SimpleMove(dir * 4);
+        myController.SimpleMove(dir * 2);
 
         GraphMgr.Instance.refreshChar();
 
-        this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
+        RayCast.instance.addIdxV3(this.getGraphIdx().pos);
 
-        Debug.LogFormat("{0} , {1} , {2}", h, v, dir);
+        this.gameObject.name = "Char" + "-" + this.getGraphIdx().pos.x + "-" + this.getGraphIdx().pos.z;
     }
 
     /// <summary>

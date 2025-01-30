@@ -32,6 +32,11 @@ public class GraphMgr: MonoBehaviour
     /// </summary>
     private Vector2Int curTarget = Vector2Int.zero;
 
+    /// <summary>
+    /// 宠物
+    /// </summary>
+    private PetMgr pet = null;
+
     private void Awake()
     {
         Instance = this;
@@ -266,6 +271,53 @@ public class GraphMgr: MonoBehaviour
     }
 
     /// <summary>
+    /// 在角色附近放置宠物
+    /// </summary>
+    public void putPet()
+    {
+        if (this.pet != null) return;
+        ObjPool.instance.getObj(GraphObjType.Pet.ToString(), (go) =>
+        {
+            var _petMgr = go.GetComponent<PetMgr>();
+            this.pet = _petMgr;
+            go.transform.parent = this.graphAnchor.transform;
+            ObjTool.instance.setLayWithChild(go, 2);
+            ObjTool.instance.setNameWithChild(go, GraphObjType.Pet.ToString());
+        });
+
+        for(int i = 0; i < MoveDirec.dx.Length; i++)
+        {
+            int xx = Mathf.RoundToInt(CharMgr.charList[0].getGraphIdx().pos.x) + MoveDirec.dx[i];
+            int zz = Mathf.RoundToInt(CharMgr.charList[0].getGraphIdx().pos.z) + MoveDirec.dy[i];
+
+            if(this.getVal(xx, zz) == (int)GraphObjType.None)
+            {
+                this.pet.gameObject.transform.localPosition = new Vector3(xx + 0.5f, 0, zz + 0.5f);
+                break;
+            }
+        }
+
+        this.pet.starFollow();
+    }
+
+    /// <summary>
+    /// 移除宠物
+    /// </summary>
+    public void removePet()
+    {
+        if (this.pet == null) return;
+
+        this.pet.stopFollow();
+
+        ObjPool.instance.backObj(this.pet.gameObject, (go) =>
+        {
+            ObjTool.instance.setNameWithChild(go, GraphObjType.Pet.ToString());
+        });
+
+        this.pet = null;
+    }
+
+    /// <summary>
     /// 根据CharMgr刷新角色在二维数组上的标记
     /// </summary>
     public void refreshChar()
@@ -292,6 +344,17 @@ public class GraphMgr: MonoBehaviour
         });
 
         this.charGraphIdx = curCharGraphIdx;
+    }
+
+    /// <summary>
+    /// 将地图的本地坐标转化为世界坐标
+    /// </summary>
+    /// <param name="localPos"></param>
+    /// <returns></returns>
+    public Vector3 localPos2WorldPos(Vector3 localPos)
+    {
+        Vector3 rtnPos = graphAnchor.transform.TransformPoint(localPos);
+        return rtnPos;
     }
 
     /// <summary>

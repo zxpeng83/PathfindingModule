@@ -40,6 +40,10 @@ public class GameControllMgr : MonoBehaviour
         {
             charMgr.moveByFlowField();
         }
+        else if(this.fsm.CurrentNodeName== nameof(RayCastNode))
+        {
+            charMgr.moveByKeyboard();
+        }
     }
 
     public void mouseInput(RaycastHit hitInfo, bool isHitSomething, bool leftMouseDown, bool rightMouseDown, bool middleScrollDown)
@@ -52,8 +56,54 @@ public class GameControllMgr : MonoBehaviour
             case nameof(FlowFieldNode):
                 this.mouseInputFlowField(hitInfo, isHitSomething, leftMouseDown, rightMouseDown, middleScrollDown);
                 break;
+            case nameof(RayCastNode):
+                this.mouseInputRayCast(hitInfo, isHitSomething, leftMouseDown);
+                break;
             default:
                 break;
+        }
+    }
+
+    private void mouseInputRayCast(RaycastHit hitInfo, bool isHitSomething, bool leftMouseDown)
+    {
+        if (isHitSomething)
+        {
+            Debug.DrawLine(Camera.main.transform.position, hitInfo.point);
+        }
+
+        if (isHitSomething) //打到物体
+        {
+            ///是否打到已经放置的障碍物
+            bool isHitBarrier = hitInfo.collider.gameObject.name.IndexOf("Barrier") != -1;
+            ///是否打到已经放置的目标
+            bool isHitTarget = hitInfo.collider.gameObject.name.IndexOf("Target") != -1;
+
+            var anchorLocalCenterPos = GraphMgr.Instance.worldPos2AnchorLocalCenterPos(hitInfo.point);
+            var graphIdx = GraphMgr.Instance.worldPos2GraphIdx(hitInfo.point);
+            var charGraphIdx = CharMgr.charList[0].getGraphIdx();
+            ///是否打到角色
+            bool isHitChar = (graphIdx.flag && MathTool.getEuclideanDisV3(graphIdx.pos, charGraphIdx.pos) < 0.01);
+
+            if (isHitBarrier || isHitChar || !anchorLocalCenterPos.flag) //打到之前放置的障碍物 或 打在角色所在格子里 或 打在地图之外
+            {
+                GraphMgr.Instance.clearAllFakeObj();
+                return;
+            }
+            else  //打的位置合法,可跟随或放置
+            {
+                if (leftMouseDown) //放置障碍物
+                {
+                    GraphMgr.Instance.putTarOrBarObj(anchorLocalCenterPos.pos, GraphObjType.Barrier);
+                }
+                else //放置预瞄物体跟随
+                {
+                    GraphMgr.Instance.putFakeObj(anchorLocalCenterPos.pos, GraphObjType.Fake);
+                }
+            }
+        }
+        else //没打到物体
+        {
+            GraphMgr.Instance.clearAllFakeObj();
         }
     }
 
@@ -157,13 +207,13 @@ public class GameControllMgr : MonoBehaviour
                 if (leftMouseDown) //放置障碍物
                 {
                     GraphMgr.Instance.putTarOrBarObj(anchorLocalCenterPos.pos, GraphObjType.Barrier);
-                    CharMgr.charList[0].freshPath();
+                    CharMgr.charList[0].freshAStarPath();
                 }
                 else if (rightMouseDown) //放置目标
                 {
                     GraphMgr.Instance.removeTarOrBarObj(GraphObjType.Target);
                     GraphMgr.Instance.putTarOrBarObj(anchorLocalCenterPos.pos, GraphObjType.Target);
-                    CharMgr.charList[0].freshPath();
+                    CharMgr.charList[0].freshAStarPath();
                 }
                 else //放置预瞄物体跟随
                 {

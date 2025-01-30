@@ -20,6 +20,7 @@ namespace GameConfig
         Wall = 2,
         Char = 3,
         Fake = 4,
+        Pet = 5,
     }
 
     /// <summary>

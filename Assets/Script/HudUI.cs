@@ -33,6 +33,7 @@ public class HudUI : MonoBehaviour
                 GameControllMgr.instance.changeMode(nameof(FlowFieldNode));
                 break;
             case 2:
+                GameControllMgr.instance.changeMode(nameof(RayCastNode));
                 break;
         }
     }

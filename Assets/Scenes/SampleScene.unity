@@ -1662,7 +1662,7 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: FlowField
       m_Image: {fileID: 0}
-    - m_Text: C*
+    - m_Text: RayCast
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
