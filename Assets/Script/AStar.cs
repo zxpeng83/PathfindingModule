@@ -31,7 +31,7 @@ public class AStar
 
         ///地图
         int[][] graph = GraphMgr.Instance.getGraph();
-        ///使用字典树模拟堆(key:当前移动距离+估值距离  val:当前位置)
+        ///使用字典树模拟堆/优先队列(key:当前移动距离+估值距离  val:当前位置)
         var heap = new SortedDictionary<float, List<Vector2Int>>();
         ///移动到Vector2的距离为float
         Dictionary<Vector2Int, float> dist = new Dictionary<Vector2Int, float>();
@@ -95,6 +95,7 @@ public class AStar
                 break;
             }
 
+            ///遍历相邻节点
             for(int i = 0; i < MoveDirec.dx.Length; i++)
             {
                 int xx = preIdx.x + MoveDirec.dx[i];
@@ -132,6 +133,8 @@ public class AStar
                 Vector2Int nexIdx = new Vector2Int(xx, yy);
                 float nexDis = float.MaxValue;
 
+                ///判断是否可以加入堆
+                ///该相邻点为遍历过 或 评估值更优 =》 加入堆
                 if(!dist.TryGetValue(nexIdx, out nexDis) || dist[nexIdx] > preDis + MathTool.getEuclideanDisV2(preIdx, nexIdx))
                 {
                     nexDis = preDis + MathTool.getEuclideanDisV2(preIdx, nexIdx);
@@ -151,6 +154,7 @@ public class AStar
             }
         }
 
+        ///最优路径还原
         List<Vector2Int> ans = new List<Vector2Int>();
         Vector2Int curPoint = target;
         while(path.TryGetValue(curPoint, out Vector2Int prePoint))

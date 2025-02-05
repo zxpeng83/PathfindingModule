@@ -29,6 +29,7 @@ public class PetMgr : MonoBehaviour
             return;
         }
 
+        ///获取角色路径
         LinkedList<Vector3> path = RayCast.instance.getPath();
 
         if (path == null || path.Count == 0)
@@ -43,6 +44,7 @@ public class PetMgr : MonoBehaviour
             return;
         }
 
+        ///从前往后遍历角色路径，打射线判断当前位置时候可达
         foreach(Vector3 charGraphIdx in path)
         {
             Vector3 charLocalCenterPos = new Vector3(charGraphIdx.x+0.5f, 0, charGraphIdx.z+0.5f);
@@ -54,7 +56,7 @@ public class PetMgr : MonoBehaviour
             if (!Physics.Linecast(rayStar, rayEnd))
             {
                 Debug.DrawLine(rayStar, rayEnd, Color.green);
-                //可达
+                //可达，并往该方向移动
                 Vector3 dir = (charWorldPos - transform.position).normalized;
                 transform.Translate(dir*1.2f*Time.deltaTime, Space.World);
 
