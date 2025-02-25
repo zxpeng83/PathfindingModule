@@ -230,7 +230,11 @@ while(heap.count > 0){
 
 ### 3.3 视频演示
 
+https://www.bilibili.com/video/BV17nPaeWEY2
+
 <video src="README.assets/寻路模块-AStar寻路演示.mp4"></video>
+
+https://www.bilibili.com/video/BV17EPaeRESJ
 
 <video src="README.assets/寻路模块-AStar寻路演示2.mp4"></video>
 
@@ -367,6 +371,8 @@ while(heap.count > 0){
 
 ### 4.4 视频演示
 
+https://www.bilibili.com/video/BV1EEPaeREA2
+
 <video src="README.assets/寻路模块-FlowField.mp4"></video>
 
 
@@ -442,5 +448,7 @@ while(heap.count > 0){
 ### 5.3 视频演示
 
 视频中我通过键盘操控角色的移动，而后方的宠物(胶囊体模拟)通过射线追踪跟随：
+
+https://www.bilibili.com/video/BV1BEPaeREzy
 
 <video src="README.assets/寻路模块-路径射线追踪.mp4"></video>
